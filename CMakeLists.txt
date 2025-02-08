@@ -1,17 +1,24 @@
 cmake_minimum_required(VERSION 3.10...3.21)
 
-project(KrisLogger VERSION ${KRISLOGGER_VERSION} LANGUAGES CXX)
+set(KRISLOGGER_VERSION "0.0.1")
+configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/version.h.in
+        ${CMAKE_CURRENT_BINARY_DIR}/version.h
+        @ONLY
+)
+
+project(KrisLogger LANGUAGES CXX)
 message(STATUS "Building KrisLogger version: ${KRISLOGGER_VERSION}")
 
 # TODO: debug, release builds
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
-set(SRCS "src/*.cpp")
-set(HDRS "include/*.h")
+file(GLOB SRCS "src/*.cpp")
+file(GLOB HDRS "include/*.h")
 
 # TODO: static or shared library
-add_library(${PROJECT_NAME}} STATIC ${SRCS})
+add_library(${PROJECT_NAME} STATIC ${SRCS})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
@@ -25,13 +32,15 @@ if(WIN32)
     target_compile_definitions(KrisLogger PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
 if (ANDROID)
-    find_library(log-lib log)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${log-lib})
+    find_library(LOG_LIB log)
+    if(LOG_LIB)
+        target_link_libraries(${PROJECT_NAME} PUBLIC ${LOG_LIB})
+    else()
+        message(FATAL_ERROR "log library (for Android) not found")
+    endif()
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-        VERSION ${KRISLOGGER_VERSION}
-        SOVERSION ${KRISLOGGER_VERSION}
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF

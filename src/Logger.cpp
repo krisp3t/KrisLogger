@@ -5,10 +5,11 @@
 #include <iostream>
 #include <chrono>
 #include <cstdarg>
-#include "../include/Logger.h"
+#include <Logger.h>
 
 namespace KrisLogger
 {
+
 #ifdef NDEBUG
     LogLevel Logger::_minLevel = LogLevel::LOG_INFO;
 #else
@@ -26,7 +27,6 @@ namespace KrisLogger
 
     void Logger::Print()
     {
-        std::cout << "Logger" << std::endl;
     }
 
     void Logger::Log(LogLevel level, const char *file, int line, const char *format, ...)
@@ -35,6 +35,8 @@ namespace KrisLogger
         {
             return;
         }
+
+        constexpr int MAX_LOG_LENGTH = 1024; // TODO: replace fixed-size buffers
 
         va_list args;
         va_start(args, format);
