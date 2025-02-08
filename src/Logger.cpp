@@ -1,7 +1,11 @@
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 #include <iostream>
 #include <chrono>
 #include <cstdarg>
-#include "Logger.h"
+#include "../include/Logger.h"
 
 namespace KrisLogger
 {
@@ -11,16 +15,19 @@ namespace KrisLogger
     LogLevel Logger::_minLevel = LogLevel::LOG_DEBUG;
 #endif
 
-    constexpr int MAX_LOG_LENGTH = 1024;
-
-// ANSI color codes
+    // TODO: make into sink
     const char *color_reset = "\u001b[0m";
-    const char *color_info = "\u001b[37m";     // White
-    const char *color_debug = "\u001b[36m";    // Cyan
-    const char *color_warn = "\u001b[33m";     // Yellow
-    const char *color_error = "\u001b[31m";    // Red
+    const char *color_info = "\u001b[37m";  // White
+    const char *color_debug = "\u001b[36m"; // Cyan
+    const char *color_warn = "\u001b[33m";  // Yellow
+    const char *color_error = "\u001b[31m"; // Red
 
 #ifndef NDEBUG
+
+    void Logger::Print()
+    {
+        std::cout << "Logger" << std::endl;
+    }
 
     void Logger::Log(LogLevel level, const char *file, int line, const char *format, ...)
     {
@@ -34,7 +41,7 @@ namespace KrisLogger
         char formatted_message[MAX_LOG_LENGTH];
         vsnprintf(formatted_message, MAX_LOG_LENGTH - 1, format, args);
         va_end(args);
-        formatted_message[MAX_LOG_LENGTH - 1] = '\0';  // Ensure null termination
+        formatted_message[MAX_LOG_LENGTH - 1] = '\0'; // Ensure null termination
 
         auto now = std::chrono::system_clock::now();
         std::time_t nowTime = std::chrono::system_clock::to_time_t(now);
@@ -50,7 +57,7 @@ namespace KrisLogger
         strftime(timeBuffer1, sizeof(timeBuffer1), "%Y-%m-%d %H:%M:%S", &localTime);
         char timeBuffer2[80];
 #if defined(_WIN32) || defined(_WIN64)
-        sprintf_s(timeBuffer2, sizeof(timeBuffer2), "%s.%03d", timeBuffer1, (int) millis);
+        sprintf_s(timeBuffer2, sizeof(timeBuffer2), "%s.%03d", timeBuffer1, (int)millis);
 #else
         snprintf(timeBuffer2, sizeof(timeBuffer2), "%s.%03d", timeBuffer1, (int)millis);
 #endif
@@ -58,18 +65,18 @@ namespace KrisLogger
 
         switch (level)
         {
-            case LogLevel::LOG_INFO:
-                std::cout << color_info << "[INFO] ";
-                break;
-            case LogLevel::LOG_DEBUG:
-                std::cout << color_debug << "[DEBUG] ";
-                break;
-            case LogLevel::LOG_WARN:
-                std::cerr << color_warn << "[WARNING] ";
-                break;
-            case LogLevel::LOG_ERROR:
-                std::cerr << color_error << "[ERROR] ";
-                break;
+        case LogLevel::LOG_INFO:
+            std::cout << color_info << "[INFO] ";
+            break;
+        case LogLevel::LOG_DEBUG:
+            std::cout << color_debug << "[DEBUG] ";
+            break;
+        case LogLevel::LOG_WARN:
+            std::cerr << color_warn << "[WARNING] ";
+            break;
+        case LogLevel::LOG_ERROR:
+            std::cerr << color_error << "[ERROR] ";
+            break;
         }
 
         std::cout << formatted_message << color_reset << std::endl;
@@ -81,6 +88,7 @@ namespace KrisLogger
     }
 
 #else
+    // TODO: not every log level should be no-op
     void Logger::Log(LogLevel level, const char *file, int line, const char *message) {}
 #endif
 
