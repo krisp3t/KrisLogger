@@ -5,7 +5,7 @@
 #include <iostream>
 #include <chrono>
 #include <cstdarg>
-#include <Logger.h>
+#include <KrisLogger/Logger.h>
 
 namespace KrisLogger
 {
