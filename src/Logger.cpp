@@ -14,7 +14,7 @@ namespace KrisLogger
 #else
     LogLevel Logger::_minLevel = LogLevel::LOG_DEBUG;
 #endif
-    const char *Logger::_tag = "RetroRenderer";
+    const char *Logger::_tag = "KrisLogger";
 
     // TODO: make into sink
     const char *color_reset = "\u001b[0m";
@@ -60,7 +60,7 @@ namespace KrisLogger
         default:                  androidPriority = ANDROID_LOG_UNKNOWN; break;
         }
 
-        __android_log_print(androidPriority, tag, "%s (%s:%d)", formatted_message, file, line);
+        __android_log_print(androidPriority, _tag, "%s (%s:%d)", formatted_message, file, line);
 #else
         auto now = std::chrono::system_clock::now();
         std::time_t nowTime = std::chrono::system_clock::to_time_t(now);
