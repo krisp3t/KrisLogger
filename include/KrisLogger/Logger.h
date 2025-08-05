@@ -21,9 +21,10 @@ namespace KrisLogger
     public:
         static void Log(LogLevel level, const char *file, int line, const char *format, ...);
         static void SetLogLevel(LogLevel level);
+        static void SetTag(const char *tag);
     private:
-        static void Print();
-        static LogLevel _minLevel; // TODO: make changeable runtime
+        static LogLevel _minLevel;
+        static const char* _tag;
     };
 
 } // namespace KrisLogger

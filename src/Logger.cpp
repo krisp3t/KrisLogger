@@ -9,12 +9,12 @@
 
 namespace KrisLogger
 {
-
 #ifdef NDEBUG
     LogLevel Logger::_minLevel = LogLevel::LOG_INFO;
 #else
     LogLevel Logger::_minLevel = LogLevel::LOG_DEBUG;
 #endif
+    const char *Logger::_tag = "RetroRenderer";
 
     // TODO: make into sink
     const char *color_reset = "\u001b[0m";
@@ -23,10 +23,14 @@ namespace KrisLogger
     const char *color_warn = "\u001b[33m";  // Yellow
     const char *color_error = "\u001b[31m"; // Red
 
-#ifndef NDEBUG
-
-    void Logger::Print()
+    void Logger::SetLogLevel(LogLevel level)
     {
+        _minLevel = level;
+    }
+
+    void Logger::SetTag(const char* tag)
+    {
+        _tag = tag;
     }
 
     void Logger::Log(LogLevel level, const char *file, int line, const char *format, ...)
@@ -45,6 +49,19 @@ namespace KrisLogger
         va_end(args);
         formatted_message[MAX_LOG_LENGTH - 1] = '\0'; // Ensure null termination
 
+#ifdef __ANDROID__
+        android_LogPriority androidPriority;
+        switch (level)
+        {
+        case LogLevel::LOG_INFO:  androidPriority = ANDROID_LOG_INFO;    break;
+        case LogLevel::LOG_DEBUG: androidPriority = ANDROID_LOG_DEBUG;   break;
+        case LogLevel::LOG_WARN:  androidPriority = ANDROID_LOG_WARN;    break;
+        case LogLevel::LOG_ERROR: androidPriority = ANDROID_LOG_ERROR;   break;
+        default:                  androidPriority = ANDROID_LOG_UNKNOWN; break;
+        }
+
+        __android_log_print(androidPriority, tag, "%s (%s:%d)", formatted_message, file, line);
+#else
         auto now = std::chrono::system_clock::now();
         std::time_t nowTime = std::chrono::system_clock::to_time_t(now);
         std::tm localTime;
@@ -88,10 +105,7 @@ namespace KrisLogger
             std::cout << file << ":" << line << std::endl;
         }
     }
-
-#else
-    // TODO: not every log level should be no-op
-    void Logger::Log(LogLevel level, const char *file, int line, const char *message) {}
 #endif
+}
 
 } // namespace KrisLogger
