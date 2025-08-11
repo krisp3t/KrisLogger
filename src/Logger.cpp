@@ -106,6 +106,5 @@ namespace KrisLogger
         }
     }
 #endif
-}
 
 } // namespace KrisLogger
