@@ -105,6 +105,5 @@ namespace KrisLogger
             std::cout << file << ":" << line << std::endl;
         }
 #endif
-}
 
 } // namespace KrisLogger
